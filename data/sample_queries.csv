@@ -1,0 +1,17 @@
+query,intent
+"I can't log into my account",support
+"How do I use the API?",technical
+"I was charged twice",billing
+"What features are available?",product
+"My password reset isn't working",support
+"API documentation",technical
+"Invoice for last month",billing
+"Free trial information",product
+"The app keeps crashing",support
+"How to configure webhooks?",technical
+"Payment method update",billing
+"Product comparison",product
+"I need cognitive help with my account",support
+"Cognitive API integration guide",technical
+"Billing cognitive analysis",billing
+"Cognitive product features",product
