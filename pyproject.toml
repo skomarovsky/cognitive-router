@@ -19,11 +19,7 @@ pyyaml = "*"
 transformers = ">=4.42"
 accelerate = "*"
 einops = "*"
-sentence-transformers = "*"Installing the current project: routing-fundamentals (0.1.1)
-Error: The current project could not be installed: No file/folder found for package routing-fundamentals
-If you do not want to install the current project use --no-root.
-If you want to use Poetry only for dependency management but not for packaging, you can disable package mode by setting package-mode = false in your pyproject.toml file.
-If you did intend to install the current project, you may need to set `packages` in your pyproject.toml file.
+sentence-transformers = "*"
 openai = ">=1.30.0"
 rich = "*"
 

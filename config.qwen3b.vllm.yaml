@@ -5,17 +5,15 @@ embedding:
   batch_size: 64
 generator:
   backend: vllm-openai
-  model_id: Qwen/Qwen2.5-7B-Instruct
-  dtype: auto
-  device_map: auto
+  model_id: Qwen/Qwen2.5-3B-Instruct
   max_new_tokens: 512
   temperature: 0.35
   top_p: 0.9
   top_k: 40
   repetition_penalty: 1.05
   openai_base_url: http://localhost:8000/v1
-  openai_api_key: sk-local-please-change
-  openai_model: qwen2.5-7b-instruct
+  openai_api_key: sk-local
+  openai_model: Qwen2.5-3B-Instruct
 router:
   top_k: 3
   temperature: 0.35

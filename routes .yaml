@@ -1,0 +1,30 @@
+version: 1
+routes:
+- name: retrieval.qa
+  prior: 0.02
+  bias: 0.0
+  cost_norm: 0.15
+  latency_norm: 0.2
+  health: 1
+  kw_patterns:
+  - (reference|doc|kb|policy)
+  - (cite|source|link)
+  centroid: []
+  dispatch:
+    type: single
+  aggregation:
+    type: take_first
+- name: code.gen
+  prior: 0.02
+  bias: 0.03
+  cost_norm: 0.4
+  latency_norm: 0.45
+  health: 1
+  kw_patterns:
+  - (python|sql|regex|function|class)
+  - (bug|fix|optimi[sz]e)
+  centroid: []
+  dispatch:
+    type: single
+  aggregation:
+    type: take_first

@@ -1,4 +1,9 @@
 from __future__ import annotations
+# Avoid vision deps & tokenizer warnings
+import os
+os.environ.setdefault("TRANSFORMERS_NO_TORCHVISION", "1")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
 import numpy as np
 from typing import Any, Dict
 
@@ -47,6 +52,14 @@ def load_generator(cfg: Dict[str, Any]) -> GenHandle:
     else:
         raise ValueError(f"Unknown backend: {backend}")
 
+def _prep_inputs_with_chat_template(tokenizer, prompt: str, device):
+    # Returns (inputs_dict, prompt_len_tokens)
+    import torch
+    messages=[{"role":"user","content":prompt}]
+    input_ids = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt")
+    inputs = {"input_ids": input_ids.to(device), "attention_mask": torch.ones_like(input_ids).to(device)}
+    return inputs, int(input_ids.shape[-1])
+
 def _load_transformers(cfg: Dict[str, Any]) -> GenHandle:
     transformers = _lazy_import_transformers()
     torch = _lazy_import_torch()
@@ -56,20 +69,23 @@ def _load_transformers(cfg: Dict[str, Any]) -> GenHandle:
     tok = transformers.AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     model = transformers.AutoModelForCausalLM.from_pretrained(
         model_id,
-        torch_dtype=(torch.float16 if dtype=="float16" else torch.bfloat16 if dtype=="bfloat16" else "auto"),
+        torch_dtype=(torch.float16 if dtype in ("float16","half") else torch.bfloat16 if dtype=="bfloat16" else "auto"),
         device_map=device_map,
         trust_remote_code=True
     )
     model.eval()
     def _gen(prompt: str, gen_kwargs: Dict[str,Any]) -> str:
-        if hasattr(tok, "apply_chat_template"):
-            messages=[{"role":"user","content":prompt}]
-            input_ids = tok.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(model.device)
+        # Ensure we pass a MAPPING to generate(**inputs)
+        used_chat_template = hasattr(tok, "apply_chat_template")
+        if used_chat_template:
+            inputs, prompt_len = _prep_inputs_with_chat_template(tok, prompt, model.device)
         else:
-            input_ids = tok(prompt, return_tensors="pt").to(model.device)
+            inputs = tok(prompt, return_tensors="pt")
+            inputs = {k: v.to(model.device) for k,v in inputs.items()}
+            prompt_len = int(inputs["input_ids"].shape[-1])
         with torch.no_grad():
             out_ids = model.generate(
-                **input_ids,
+                **inputs,
                 max_new_tokens=gen_kwargs.get("max_new_tokens",512),
                 do_sample=gen_kwargs.get("temperature",0)>0,
                 temperature=gen_kwargs.get("temperature",0.35),
@@ -77,7 +93,10 @@ def _load_transformers(cfg: Dict[str, Any]) -> GenHandle:
                 top_k=gen_kwargs.get("top_k",40),
                 repetition_penalty=gen_kwargs.get("repetition_penalty",1.05),
             )
-        return tok.decode(out_ids[0], skip_special_tokens=True)
+        # Strip the prompt (prevents echo)
+        gen_tokens = out_ids[0, prompt_len:]
+        text = tok.decode(gen_tokens, skip_special_tokens=True)
+        return text.strip()
     return GenHandle("transformers", _gen, tok, model)
 
 def _load_transformers_4bit(cfg: Dict[str, Any]) -> GenHandle:
@@ -92,19 +111,26 @@ def _load_transformers_4bit(cfg: Dict[str, Any]) -> GenHandle:
     )
     model.eval()
     def _gen(prompt: str, gen_kwargs: Dict[str,Any]) -> str:
-        if hasattr(tok, "apply_chat_template"):
-            messages=[{"role":"user","content":prompt}]
-            input_ids = tok.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(model.device)
+        used_chat_template = hasattr(tok, "apply_chat_template")
+        if used_chat_template:
+            inputs, prompt_len = _prep_inputs_with_chat_template(tok, prompt, model.device)
         else:
-            input_ids = tok(prompt, return_tensors="pt").to(model.device)
+            inputs = tok(prompt, return_tensors="pt")
+            inputs = {k: v.to(model.device) for k,v in inputs.items()}
+            prompt_len = int(inputs["input_ids"].shape[-1])
         with torch.no_grad():
-            out_ids = model.generate(**input_ids, max_new_tokens=gen_kwargs.get("max_new_tokens",512),
-                                     do_sample=gen_kwargs.get("temperature",0)>0,
-                                     temperature=gen_kwargs.get("temperature",0.35),
-                                     top_p=gen_kwargs.get("top_p",0.9),
-                                     top_k=gen_kwargs.get("top_k",40),
-                                     repetition_penalty=gen_kwargs.get("repetition_penalty",1.05))
-        return tok.decode(out_ids[0], skip_special_tokens=True)
+            out_ids = model.generate(
+                **inputs,
+                max_new_tokens=gen_kwargs.get("max_new_tokens",512),
+                do_sample=gen_kwargs.get("temperature",0)>0,
+                temperature=gen_kwargs.get("temperature",0.35),
+                top_p=gen_kwargs.get("top_p",0.9),
+                top_k=gen_kwargs.get("top_k",40),
+                repetition_penalty=gen_kwargs.get("repetition_penalty",1.05),
+            )
+        gen_tokens = out_ids[0, prompt_len:]
+        text = tok.decode(gen_tokens, skip_special_tokens=True)
+        return text.strip()
     return GenHandle("transformers-4bit", _gen, tok, model)
 
 def _load_vllm_openai(cfg: Dict[str, Any]) -> GenHandle:

@@ -1,12 +1,15 @@
 retrieval.qa:
   positives:
-    - show me the policy and cite the source
-    - find documentation about data contracts and include links
-    - summarize this doc with references
-    - where can I read the official kb article?
+  - show me the policy and cite the source
+  - find documentation about data contracts and include links
+  - summarize this doc with references
+  - where can I read the official kb article?
 code.gen:
   positives:
-    - write a python function that validates email addresses
-    - optimize this SQL query and explain changes
-    - fix this regex bug and add tests
-    - create a class with a parse method in python
+  - write a python function that validates email addresses
+  - optimize this SQL query and explain changes
+  - fix this regex bug and add tests
+  - create a class with a parse method in python
+  - explain BFS vs DFS and provide a Python example
+  - write Python code to traverse a graph with BFS and DFS
+  - compare BFS and DFS time/space complexity and show code
