@@ -1,288 +1,117 @@
-# 🧠 Cognitive Router
-
-> Intelligent natural language understanding and routing using cognitive AI models. Think beyond simple pattern matching - understand user intent like humans do.
-
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![Poetry](https://img.shields.io/badge/dependency%20management-Poetry-blue)](https://python-poetry.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-## 🌟 Why Cognitive Router?
-
-Traditional routing systems rely on simple keyword matching or rigid rules. **Cognitive Router** brings human-like understanding to your applications:
-
-- **🧠 Cognitive Understanding**: Grasps context, intent, and nuance like humans
-- **🔬 Nano-Scale Models**: Powerful AI in tiny packages (23MB similarity, <1MB keyword)
-- **⚡ Lightning Fast**: <50ms response time, 1000+ queries/second throughput
-- **🏭 Production-Ready**: Battle-tested error handling, monitoring, and scaling
-- **🎛️ Multiple Cognitive Approaches**: Similarity, keyword, and ensemble methods
-- **🚀 Zero-Config Start**: Intelligent defaults, works out of the box
-
-## 📦 Installation with Poetry
-
-### Prerequisites
-- Python 3.7+
-- Poetry (will be installed automatically if not present)
-
-### Quick Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/cognitive-router.git
-cd cognitive-router
-
-# Install dependencies with Poetry
-poetry install
-
-# Install with all optional features
-poetry install --extras "all"
-
-# Activate the virtual environment
-poetry shell
-
-# Test cognitive capabilities
-python examples/basic_usage.py
-```
-
-### Installation Options
-
-```bash
-# Basic installation (similarity + keyword routing)
-poetry install
-
-# With advanced cognitive features (DistilBERT fine-tuning)
-poetry install --extras "advanced"
-
-# With API server capabilities
-poetry install --extras "api"
-
-# With all features
-poetry install --extras "all"
-
-# Development installation with all dev tools
-poetry install --with dev --with docs --extras "all"
-```
-
-## 🚀 Quick Cognitive Start
-
-```python
-from cognitive_router import create_similarity_router, create_keyword_router
-
-# Create a cognitive similarity router (understands context and meaning)
-cognitive = create_similarity_router()
-intent, confidence = cognitive.classify("I can't access my account")
-print(f"Intent: {intent}, Confidence: {confidence:.3f}")
-# Output: Intent: support, Confidence: 0.847
-
-# Create a cognitive keyword router (blazingly fast pattern recognition)
-fast_cognitive = create_keyword_router()
-intent, confidence = fast_cognitive.classify("How do I use the API?")
-print(f"Intent: {intent}, Confidence: {confidence:.3f}")
-# Output: Intent: technical, Confidence: 0.750
-```
-
-## 🧠 Cognitive Capabilities
-
-| Cognitive Mode | Model Size | Speed | Accuracy | Cognitive Features |
-|----------------|------------|-------|----------|-------------------|
-| **Keyword Cognitive** | <1MB | <1ms | 85-90% | Pattern recognition, rule learning |
-| **Similarity Cognitive** | ~23MB | 10-50ms | 90-95% | Semantic understanding, context awareness |
-| **Ensemble Cognitive** | Combined | Variable | 95%+ | Multi-modal reasoning, consensus building |
-| **DistilBERT Cognitive** | ~67MB | 20-100ms | 95-98% | Deep language understanding, fine-tuned cognition |
-
-## 🛠️ Development with Poetry
-
-### Running Tests
-
-```bash
-# Run all tests
-poetry run pytest
-
-# Run with coverage
-poetry run pytest --cov=cognitive_router --cov-report=html
-
-# Run specific test types
-poetry run pytest -m "not slow"  # Skip slow tests
-poetry run pytest -m "unit"      # Run only unit tests
-poetry run pytest -m "integration"  # Run only integration tests
-```
-
-### Code Quality
-
-```bash
-# Format code with black
-poetry run black cognitive_router/ tests/ examples/
-
-# Sort imports with isort
-poetry run isort cognitive_router/ tests/ examples/
-
-# Lint with flake8
-poetry run flake8 cognitive_router/ tests/ examples/
-
-# Run all quality checks
-poetry run black --check cognitive_router/
-poetry run isort --check-only cognitive_router/
-poetry run flake8 cognitive_router/
-```
-
-### Benchmarking
-
-```bash
-# Run cognitive benchmarks
-poetry run cognitive-benchmark
-
-# Train custom cognitive model
-poetry run cognitive-train --data data/sample_queries.csv
-
-# Evaluate cognitive performance
-poetry run cognitive-evaluate --model models/my_model
-```
-
-## 🧪 Jupyter Notebooks
-
-```bash
-# Start Jupyter with Poetry environment
-poetry run jupyter notebook
-
-# Or use Jupyter Lab
-poetry run jupyter lab
-```
-
-Then navigate to the `notebooks/` directory for comprehensive tutorials:
-
-1. **[Part 1: Cognitive Setup](notebooks/part1_setup.ipynb)** - Initialize cognitive intelligence
-2. **[Part 2: Similarity Cognition](notebooks/part2_similarity.ipynb)** - Semantic understanding
-3. **[Part 3: Cognitive Ensembles](notebooks/part3_keyword_hybrid.ipynb)** - Multi-modal cognition
-4. **[Part 4: Cognitive Benchmarks](notebooks/part4_benchmarks.ipynb)** - Intelligence metrics
-5. **[Part 5: Cognitive Analysis](notebooks/part5_visualization.ipynb)** - Understanding patterns
-
-## 🚀 Production Deployment
-
-### API Server with FastAPI
-
-```bash
-# Install API dependencies
-poetry install --extras "api"
-
-# Run cognitive API server
-poetry run python examples/api_server.py
-```
-
-### Docker Deployment
-
-```dockerfile
-FROM python:3.9-slim
-
-# Install Poetry
-RUN pip install poetry
-
-# Copy project files
-COPY . /app
-WORKDIR /app
-
-# Install dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --extras "all"
-
-# Run cognitive router
-CMD ["python", "examples/api_server.py"]
-```
-
-## 🔧 Advanced Cognitive Usage
-
-### Custom Cognitive Training
-
-```python
-from advanced.distilbert import DistilBERTFineTunedRouter, TrainingConfig
-import pandas as pd
-
-# Prepare cognitive training data
-df = pd.DataFrame({
-    'query': ["I need help", "API documentation", "billing issue", "product info"],
-    'intent': ["support", "technical", "billing", "product"]
-})
-
-# Configure cognitive learning
-config = TrainingConfig(
-    num_train_epochs=3,
-    learning_rate=2e-5,
-    output_dir="./my_cognitive_model"
-)
-
-# Train cognitive understanding
-cognitive_learner = DistilBERTFineTunedRouter(config)
-train_dataset, val_dataset = cognitive_learner.prepare_training_data(df)
-results = cognitive_learner.fine_tune(train_dataset, val_dataset)
-```
-
-### Cognitive Monitoring
-
-```python
-from cognitive_router.utils import CognitiveMonitor
-
-cognitive_monitor = CognitiveMonitor(window_size=1000)
-
-# Monitor cognitive decisions
-cognitive_monitor.log_prediction(
-    router_name="production_cognitive",
-    query="user cognitive query",
-    prediction="support", 
-    confidence=0.95,
-    processing_time=15.2
-)
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [contributing guidelines](docs/contributing.md).
-
-### Development Setup with Poetry
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/cognitive-router.git
-cd cognitive-router
-
-# Install all dependencies including dev tools
-poetry install --with dev --with docs --extras "all"
-
-# Activate the environment
-poetry shell
-
-# Run pre-commit hooks
-poetry run pre-commit install
-```
-
-### Publishing
-
-```bash
-# Build the package
-poetry build
-
-# Publish to PyPI (maintainers only)
-poetry publish
-```
-
-## 📚 Documentation
-
-- **[Installation Guide](docs/installation.md)** - Setup cognitive capabilities
-- **[User Guide](docs/user_guide.md)** - Master cognitive routing
-- **[API Reference](docs/api_reference.md)** - Complete cognitive API
-- **[Contributing](docs/contributing.md)** - Development guidelines
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Poetry](https://python-poetry.org/) for excellent dependency management
-- [Sentence Transformers](https://www.sbert.net/) for cognitive embedding models
-- [Hugging Face](https://huggingface.co/) for cognitive transformer implementations
-- [scikit-learn](https://scikit-learn.org/) for cognitive ML utilities
+# Article 1 — Routing Fundamentals
+*Build the routes, embeddings, centroids, raw scoring; pick temperature and top-k; dispatch & aggregation patterns.*
 
 ---
 
-**🧠 Made with cognitive intelligence and Poetry for developers who demand understanding, not just matching.**
+## TL;DR
+- Treat routing as a lightweight, interpretable ranking problem: compute a **raw score** per route from simple, additive signals (semantic similarity to a route centroid, keyword hints, priors, cost/latency, health), then pick **top-k**.
+- Use **static centroids** per route (mean of normalized example embeddings) and keep them stable; update only when evaluation proves drift.
+- Keep **temperature** low (τ≈0.25–0.40) and only sample when scores are close; otherwise take the argmax.
+- Start with **single-winner** dispatch; add **cascade** fallback and **parallel K-of-N** for critical flows. Aggregate with **RRF** or **semantic agreement**.
+- Log every hop. Make promotion to production boring: defaults, guardrails, rollback.
 
-*"It's not just routing - it's cognitive intelligence."*
+---
+
+## What a “route” is
+A **route** is a named decision path that sends a request to one or more experts (tools, prompts, models, functions, retrievers). Routes are stable. What varies per request is which route wins and how many experts it fans out to.
+
+Each route has:
+- **Purpose** — what it solves.
+- **Examples** — short, real queries (positive/negative).
+- **Centroid** — mean embedding of positive examples.
+- **Signals** — keyword hints, priors, cost/latency, availability.
+- **Dispatch recipe** — single, cascade, or K-of-N parallel.
+- **Aggregation recipe** — how multiple outputs are fused.
+
+---
+
+## Embeddings & centroids
+
+### Embedding setup
+Use a compact text-embedding model and L2-normalize vectors (cosine ready).
+
+```python
+import numpy as np
+
+def l2norm(x):
+    n = np.linalg.norm(x)
+    return x / (n + 1e-12)
+```
+
+### Centroid construction
+For each route collect 10–100 positive examples, embed, normalize, then **centroid = mean → normalize**.  
+Use **`tools/build_centroids.py`** to write centroids into `routes.yaml` from `examples/routes_examples.yaml`.
+
+---
+
+## Raw scoring (additive & transparent)
+
+\[
+\text{score}_r(q) =
+w_{sim}\cdot \cos(\mathbf{e}_q, \mathbf{c}_r)
++ w_{kw}\cdot kw_r(q)
++ w_{prior}\cdot \pi_r
+- w_{cost}\cdot cost_r
+- w_{lat}\cdot latency_r
++ w_{health}\cdot health_r
++ bias_r
+\]
+
+Keep weights tiny and sparse; the similarity term does the heavy lifting. Defaults live in `config.yaml → router.weights`.
+
+---
+
+## Temperature & top-k
+Compute scores for all routes, sort, take **top-k**. If the **margin** between rank-1 and rank-2 exceeds a threshold (default 0.06), pick the winner deterministically. Otherwise you may **softmax-sample** over top-k with τ≈0.25–0.40.
+
+---
+
+## Dispatch & Aggregation
+- **Dispatch**: single-winner, cascade fallback, or parallel K-of-N (`dispatch.py`)
+- **Aggregation**: take-first, **RRF**, or **semantic agreement** (`aggregate.py`)
+
+---
+
+## Guardrails & Telemetry
+- Health/budget/latency gates and allow/deny lists at route level.
+- Structured JSONL logs of component scores & decisions (`telemetry.py`).
+
+---
+
+## Mermaid overview
+```mermaid
+flowchart TD
+    A["Query"] --> B["Embed → Unit Vector"]
+    B["Embed → Unit Vector"] --> C["Cosine vs Route Centroids"]
+    A["Query"] --> D["Keyword Hints"]
+    E["Route Metadata: Priors, Cost, Latency, Health"] --> F["Raw Score per Route"]
+    C["Cosine vs Route Centroids"] --> F["Raw Score per Route"]
+    D["Keyword Hints"] --> F["Raw Score per Route"]
+    F["Raw Score per Route"] --> G["Sort → Top-k"]
+    G["Sort → Top-k"] --> H["Deterministic Pick (margin large)"]
+    G["Sort → Top-k"] --> I["Softmax Sample (τ low)"]
+    H["Deterministic Pick (margin large)"] --> J["Dispatch Pattern"]
+    I["Softmax Sample (τ low)"] --> J["Dispatch Pattern"]
+    J["Dispatch Pattern"] --> K["Execute Experts"]
+    K["Execute Experts"] --> L["Aggregation"]
+    L["Aggregation"] --> M["Final Answer"]
+```
+
+---
+
+## Quickstart
+
+```bash
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+# optional vLLM server:
+# pip install vllm
+# vllm serve Qwen/Qwen2.5-7B-Instruct --port 8000 --dtype bfloat16
+```
+
+Build centroids from seed examples:
+```bash
+python tools/build_centroids.py --config config.yaml --examples examples/routes_examples.yaml --routes routes.yaml
+```
+
+Use **playground_qwen_router.ipynb** to tweak temperature/top‑k or **cli.py** to rank/pick/chat.
