@@ -1,7 +1,7 @@
 from __future__ import annotations
 import re, argparse
 from dataclasses import dataclass
-from typing import List, Dict, Tuple, Callable
+from typing import List, Dict, Tuple, Callable, Union
 import numpy as np
 import yaml
 
@@ -62,7 +62,7 @@ def route_score_components(q_vec: np.ndarray, q_text: str, route: Route, W: Dict
              - W['cost']*cost - W['lat']*lat + W['health']*health + route.bias)
     return dict(score=score, sim=sim, kw=kw, prior=prior, cost=cost, latency=lat, health=health, bias=route.bias)
 
-def softmax(xs: List[float], tau: float) -> np.ndarray:
+def softmax(xs: Union[List[float], np.ndarray], tau: float) -> np.ndarray:
     xs = np.array(xs) / max(tau, 1e-6)
     xs = xs - xs.max()
     e = np.exp(xs)

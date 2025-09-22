@@ -136,7 +136,7 @@ def _load_transformers_4bit(cfg: Dict[str, Any]) -> GenHandle:
 def _load_vllm_openai(cfg: Dict[str, Any]) -> GenHandle:
     OpenAI = _lazy_import_openai()
     client = OpenAI(base_url=cfg.get("openai_base_url","http://localhost:8000/v1"),
-                    api_key=cfg.get("openai_api_key","sk-local"))
+                     api_key=cfg.get("openai_api_key","sk-local"))
     model = cfg.get("openai_model","qwen2.5-7b-instruct")
     def _gen(prompt: str, gen_kwargs: Dict[str,Any]) -> str:
         resp = client.chat.completions.create(
@@ -146,5 +146,18 @@ def _load_vllm_openai(cfg: Dict[str, Any]) -> GenHandle:
             temperature=gen_kwargs.get("temperature",0.35),
             top_p=gen_kwargs.get("top_p",0.9)
         )
+        
+        # Check if response has choices
+        if not resp.choices:
+            raise ValueError("OpenAI API response contains no choices")
+        
+        # Check if first choice has a message
+        if not resp.choices[0].message:
+            raise ValueError("OpenAI API response choice has no message")
+        
+        # Check if message content is not None
+        if resp.choices[0].message.content is None:
+            raise ValueError("OpenAI API response message content is None")
+            
         return resp.choices[0].message.content
     return GenHandle("vllm-openai", _gen)
