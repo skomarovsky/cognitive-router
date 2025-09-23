@@ -62,7 +62,7 @@ def main():
                           top_p=cfg['generator']['top_p'],
                           top_k=cfg['generator']['top_k'],
                           repetition_penalty=cfg['generator']['repetition_penalty'])
-        if winner.name == "code.gen":
+        if winner.name in ["code.gen", "qwen3.gen"]:
             out = gen.generate(query, gen_kwargs)
             print(out)
         else:

@@ -1,0 +1,26 @@
+version: 1
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  normalize: true
+  batch_size: 64
+generator:
+  backend: vllm-openai
+  model_id: Qwen/Qwen3-7B-Instruct
+  max_new_tokens: 512
+  temperature: 0.35
+  top_p: 0.9
+  top_k: 40
+  repetition_penalty: 1.05
+  openai_base_url: http://localhost:8000/v1
+  openai_api_key: sk-local
+  openai_model: Qwen3-7B-Instruct
+router:
+  top_k: 3
+  temperature: 0.35
+  weights:
+    sim: 1.0
+    kw: 0.45
+    prior: 0.05
+    cost: 0.2
+    lat: 0.1
+    health: 0.2

@@ -398,6 +398,17 @@ routes:
     type: single
   aggregation:
     type: take_first
+- name: qwen3.gen
+  prior: 0.1
+  bias: 0.1
+  cost_norm: 0.2
+  latency_norm: 0.3
+  health: 1
+  kw_patterns:
+  - (explain|describe|tell|what|how|why)
+  - (analyze|discuss|compare|evaluate)
+  - (generate|create|write|make)
+  - (question|answer|response)
 - name: code.gen
   prior: 0.02
   bias: 0.05
