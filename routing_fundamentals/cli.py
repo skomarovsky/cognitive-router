@@ -25,7 +25,7 @@ def main():
     cfg = yaml.safe_load(open(args.config))
     routes = load_routes(args.routes)
     emb_cfg = cfg['embedding']
-    embed_fn = build_embedder(emb_cfg['model'], normalize=emb_cfg.get('normalize', True))
+    embed_fn = build_embedder(emb_cfg['model'], normalize=emb_cfg.get('normalize', True), device='cpu')
     W = cfg['router']['weights']
     TOP_K = cfg['router']['top_k']
     TEMP  = cfg['router']['temperature']

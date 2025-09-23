@@ -227,7 +227,7 @@ All configurations use consistent generation settings:
 - Ensure CUDA is properly installed and accessible
 - Check GPU memory availability
 - Verify port 8000 is not already in use
-- Use `--gpu-memory-utilization 0.7` if experiencing OOM errors
+- **Memory Management:** Adjust `--gpu-memory-utilization` (default 0.85) to limit GPU memory usage. For example, use 0.5 for 50% utilization or 0.3 for 30% if experiencing OOM errors
 
 ### Transformers Backend Issues
 - Ensure sufficient RAM for model loading

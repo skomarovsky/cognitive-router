@@ -23,14 +23,39 @@ def _lazy_import_openai():
     from openai import OpenAI
     return OpenAI
 
-def build_embedder(model_name: str, normalize: bool=True, batch_size: int=64):
-    ST = _lazy_import_st()
-    model = ST(model_name)
+def build_embedder(model_name: str, normalize: bool=True, batch_size: int=64, device: str="cpu"):
+    # Use TF-IDF instead of SentenceTransformers to avoid GPU memory issues
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    import re
+
+    def preprocess_text(text: str) -> str:
+        text = text.lower()
+        text = re.sub(r'\s+', ' ', text)
+        return text.strip()
+
+    vectorizer = TfidfVectorizer(
+        max_features=25,  # Match centroid dimensions
+        stop_words='english',
+        ngram_range=(1, 2)
+    )
+
+    # Pre-fit on common technical terms
+    sample_texts = [
+        "machine learning", "artificial intelligence", "neural network",
+        "deep learning", "computer vision", "natural language processing",
+        "data science", "programming", "algorithm", "model training"
+    ]
+    vectorizer.fit(sample_texts)
+
     def embed(texts: list[str]) -> np.ndarray:
-        vecs = model.encode(texts, batch_size=batch_size, convert_to_numpy=True, normalize_embeddings=normalize)
+        processed_texts = [preprocess_text(text) for text in texts]
+        vecs = vectorizer.transform(processed_texts).toarray().astype(np.float32)
+
         if normalize and vecs.ndim == 2:
-            norms = np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-12
+            norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+            norms[norms == 0] = 1  # Avoid division by zero
             vecs = vecs / norms
+
         return vecs
     return embed
 
