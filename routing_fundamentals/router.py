@@ -51,8 +51,36 @@ def load_routes(path: str) -> List[Route]:
         ))
     return routes
 
+def _align_for_similarity(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Pad the shorter vector with zeros so we can take a dot product.
+
+    Real routes may ship centroids that were created with a slightly different
+    embedding dimensionality.  When that happens numpy's ``@`` would raise a
+    ``ValueError`` even though the extra dimensions are effectively unused.  To
+    keep routing working we zero-pad whichever vector is shorter so that both
+    are comparable without mutating the originals.
+    """
+
+    if a.shape == b.shape:
+        return a, b
+
+    target = max(a.shape[-1], b.shape[-1])
+
+    def _pad(vec: np.ndarray) -> np.ndarray:
+        if vec.shape[-1] == target:
+            return vec
+        pad_width = [(0, 0)] * (vec.ndim - 1) + [(0, target - vec.shape[-1])]
+        return np.pad(vec, pad_width, mode="constant")
+
+    return _pad(a), _pad(b)
+
+
 def route_score_components(q_vec: np.ndarray, q_text: str, route: Route, W: Dict[str, float]) -> Dict[str, float]:
-    sim = float(q_vec @ route.centroid) if route.centroid.size else 0.0
+    if route.centroid.size:
+        q_vec_aligned, centroid = _align_for_similarity(q_vec, route.centroid)
+        sim = float(q_vec_aligned @ centroid)
+    else:
+        sim = 0.0
     kw  = kw_bonus(q_text, route.kw_patterns)
     prior = route.prior
     cost  = route.cost_norm
