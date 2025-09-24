@@ -191,6 +191,36 @@ uv run router --config config.yaml chat "What are the latest features in Qwen3?"
 uv run router --config config.qwen7b_awq.vllm.yaml chat "What are the benefits of model quantization?"
 ```
 
+## Changing Embedding Dimensions
+
+### Key Points
+- The `build_embedder` helper simply wraps a `SentenceTransformer` model, so the
+  output dimensionality is entirely determined by the pretrained checkpoint you
+  load—MiniLM produces 384-dimensional vectors, for example.
+- Configuration files such as `config.yaml` select that model; swapping the
+  `embedding.model` field to another SentenceTransformer checkpoint (e.g., a
+  768-dim `all-mpnet-base-v2` or a 256-dim distilled variant) is the supported
+  way to change the embedding size.
+
+### How to Request a Different Embedding Size
+1. **Pick a model with the desired dimensionality.** Consult the
+   [SentenceTransformers model zoo](https://www.sbert.net/docs/pretrained_models.html)
+   for checkpoints that emit the dimension you need. There is no runtime flag to
+   “ask” a model to output a different width; you must choose a checkpoint
+   trained with that width.
+2. **Update your configuration.** Edit the `embedding.model` entry in your
+   configuration (for example, `config.yaml`) to point at the new checkpoint
+   name. When `build_embedder` runs, it will load that model and all downstream
+   code will automatically see embeddings with the new dimensionality.
+3. **Optional: add your own projection.** If you truly need a custom dimension
+   that no pretrained checkpoint offers, implement a post-processing step (e.g.,
+   an additional linear projection) after `build_embedder` returns. The current
+   codebase does not include such a feature, so you would extend the embedder
+   yourself if necessary.
+
+Because dimensionality is tied to the model weights, switching models (or
+adding a custom projection layer) is the supported approach.
+
 ## Configuration Details
 
 ### Router Weights
