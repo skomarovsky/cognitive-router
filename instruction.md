@@ -263,3 +263,7 @@ uv run router --config config.qwen7b_awq.vllm.yaml chat "What is the capital of 
 ```bash
 # Use 3B model without server setup
 uv run router --config config.qwen3b.transformers.yaml rank "Test query"
+
+## Last
+
+This section captures any final reminders or updates that should be reviewed before running the router.
