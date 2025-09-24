@@ -6,6 +6,7 @@ os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 import numpy as np
 from typing import Any, Dict
+from collections.abc import Iterable, Sequence
 
 def _lazy_import_st():
     from sentence_transformers import SentenceTransformer
@@ -24,39 +25,52 @@ def _lazy_import_openai():
     return OpenAI
 
 def build_embedder(model_name: str, normalize: bool=True, batch_size: int=64, device: str="cpu"):
-    # Use TF-IDF instead of SentenceTransformers to avoid GPU memory issues
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    import re
+    """Build a SentenceTransformer embedder that runs comfortably on CPU.
 
-    def preprocess_text(text: str) -> str:
-        text = text.lower()
-        text = re.sub(r'\s+', ' ', text)
-        return text.strip()
+    Parameters
+    ----------
+    model_name:
+        Hugging Face model identifier understood by ``SentenceTransformer``.
+        ``all-MiniLM-L6-v2`` (the default used in configs) runs quickly on CPU
+        and produces 384-dimensional embeddings compatible with the provided
+        centroids.
+    normalize:
+        Whether to L2-normalize embeddings. Downstream cosine similarity logic
+        in the router expects normalized vectors, so we keep the option enabled
+        by default but allow callers to opt out if necessary.
+    batch_size:
+        Batch size forwarded to ``SentenceTransformer.encode``.
+    device:
+        Torch device string. The CPU-friendly models in this project work well
+        with ``"cpu"`` so we make that the default but respect any override.
+    """
 
-    vectorizer = TfidfVectorizer(
-        max_features=25,  # Match centroid dimensions
-        stop_words='english',
-        ngram_range=(1, 2)
-    )
+    SentenceTransformer = _lazy_import_st()
+    model = SentenceTransformer(model_name, device=device)
 
-    # Pre-fit on common technical terms
-    sample_texts = [
-        "machine learning", "artificial intelligence", "neural network",
-        "deep learning", "computer vision", "natural language processing",
-        "data science", "programming", "algorithm", "model training"
-    ]
-    vectorizer.fit(sample_texts)
+    def _check_texts(texts: Iterable[str]) -> Sequence[str]:
+        if isinstance(texts, str) or not isinstance(texts, Sequence):
+            raise TypeError("texts must be a sequence of strings")
+        for t in texts:
+            if not isinstance(t, str):
+                raise TypeError("texts must contain only strings")
+        return texts
 
     def embed(texts: list[str]) -> np.ndarray:
-        processed_texts = [preprocess_text(text) for text in texts]
-        vecs = vectorizer.transform(processed_texts).toarray().astype(np.float32)
-
-        if normalize and vecs.ndim == 2:
-            norms = np.linalg.norm(vecs, axis=1, keepdims=True)
-            norms[norms == 0] = 1  # Avoid division by zero
-            vecs = vecs / norms
-
+        seq = _check_texts(texts)
+        vecs = model.encode(
+            seq,
+            batch_size=batch_size,
+            show_progress_bar=False,
+            convert_to_numpy=True,
+            normalize_embeddings=normalize,
+        )
+        if not isinstance(vecs, np.ndarray):
+            vecs = np.asarray(vecs)
+        if vecs.dtype != np.float32:
+            vecs = vecs.astype(np.float32, copy=False)
         return vecs
+
     return embed
 
 class GenHandle:
